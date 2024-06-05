@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -19,7 +18,7 @@ public class CodeController {
 
     @PostMapping("/compile")
     public ResponseEntity<String> compileCode(@RequestBody CodeRequest codeRequest) {
-        log.info("Received request: code={}, language={}", codeRequest.getCode(), codeRequest.getLanguage());
+        log.info("받은 값: code={}, language={}", codeRequest.getCode(), codeRequest.getLanguage());
 
         String language = codeRequest.getLanguage().toLowerCase();
         String code = codeRequest.getCode();
@@ -31,11 +30,11 @@ public class CodeController {
                 case "python":
                     return compilePythonCode(code);
                 default:
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unsupported language");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("test");
             }
         } catch (Exception e) {
             log.error("Compilation error", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Exception occurred during compilation");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("exception");
         }
     }
 
@@ -53,11 +52,11 @@ public class CodeController {
                 String output = new String(runProcess.getInputStream().readAllBytes());
                 return ResponseEntity.ok(output);
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No running process found");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("실행 불가 값");
             }
         } catch (Exception e) {
             log.error("Execution error", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Exception occurred during execution");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("exception");
         }
     }
 
@@ -80,7 +79,6 @@ public class CodeController {
     private ResponseEntity<String> compilePythonCode(String code) throws Exception {
         Files.write(Paths.get("UserCode.py"), code.getBytes());
 
-        // Python은 컴파일 단계가 없으므로 바로 실행 프로세스를 준비합니다.
         runProcess = new ProcessBuilder("python3", "UserCode.py").start();
         return ResponseEntity.ok("Python 코드 준비 완료");
     }
